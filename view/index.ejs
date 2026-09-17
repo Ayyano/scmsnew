@@ -1,0 +1,5232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    />
+
+    <title>SCMS | KPK School Management System</title>
+
+    <!-- Google Font -->
+    <link
+        rel="preconnect"
+        href="https://fonts.googleapis.com"
+    />
+
+    <link
+        rel="preconnect"
+        href="https://fonts.gstatic.com"
+        crossorigin
+    />
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet"
+    />
+
+    <!-- Font Awesome -->
+    <link
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+    />
+
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- Supabase -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <style>
+
+        :root {
+            --theme-dark: #0f5298;
+            --theme-light: #1665b0;
+            --bg-gray: #2f2f2f;
+            --text-dark: #333;
+            --text-muted: #777;
+            --green: #7bb033;
+            --orange: #f28c04;
+            --teal: #38b9be;
+            --red: #d90205;
+            --white: #ffffff;
+            --light-bg: #f4f7fb;
+            --border: #e6e9ef;
+            --shadow: 0 4px 15px rgba(0,0,0,0.1);
+            --radius: 12px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: "Poppins", sans-serif;
+            background: var(--light-bg);
+            color: var(--text-dark);
+        }
+
+        button,
+        input,
+        select,
+        textarea {
+            font-family: inherit;
+        }
+
+        button {
+            cursor: pointer;
+        }
+
+        /* =========================================================
+           LOGIN
+        ========================================================= */
+
+        #loginScreen {
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            background:
+                linear-gradient(
+                    135deg,
+                    var(--theme-dark),
+                    var(--theme-light)
+                );
+        }
+
+        .login-box {
+            width: 100%;
+            max-width: 430px;
+            background: #fff;
+            padding: 38px;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,.25);
+        }
+
+        .login-logo {
+            width: 70px;
+            height: 70px;
+            border-radius: 18px;
+            margin: 0 auto 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--theme-dark);
+            color: #fff;
+            font-size: 30px;
+        }
+
+        .login-box h1 {
+            text-align: center;
+            font-size: 25px;
+            color: var(--theme-dark);
+        }
+
+        .login-box .subtitle {
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 13px;
+            margin: 5px 0 28px;
+        }
+
+        .field {
+            margin-bottom: 16px;
+        }
+
+        .field label {
+            display: block;
+            margin-bottom: 7px;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .input-wrapper {
+            position: relative;
+        }
+
+        .input-wrapper i {
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #999;
+        }
+
+        .field input,
+        .field select,
+        .field textarea {
+            width: 100%;
+            padding: 12px 14px;
+            border: 1px solid var(--border);
+            border-radius: 9px;
+            outline: none;
+            background: #fff;
+            transition: .2s;
+        }
+
+        .input-wrapper input {
+            padding-left: 42px;
+        }
+
+        .field input:focus,
+        .field select:focus,
+        .field textarea:focus {
+            border-color: var(--theme-light);
+            box-shadow: 0 0 0 3px rgba(22,101,176,.1);
+        }
+
+        .login-btn {
+            width: 100%;
+            border: none;
+            border-radius: 9px;
+            padding: 13px;
+            color: #fff;
+            background: var(--theme-dark);
+            font-weight: 600;
+            margin-top: 8px;
+        }
+
+        .login-btn:hover {
+            background: var(--theme-light);
+        }
+
+        .login-note {
+            text-align: center;
+            margin-top: 18px;
+            color: var(--text-muted);
+            font-size: 11px;
+        }
+
+        .login-error {
+            display: none;
+            background: #fff1f1;
+            color: var(--red);
+            padding: 10px;
+            border-radius: 8px;
+            font-size: 12px;
+            margin-bottom: 15px;
+        }
+
+        /* =========================================================
+           APP
+        ========================================================= */
+
+        #app {
+            display: none;
+            min-height: 100vh;
+        }
+
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: 250px;
+            height: 100vh;
+            background: #fff;
+            border-right: 1px solid var(--border);
+            z-index: 1000;
+            overflow-y: auto;
+        }
+
+        .brand {
+            height: 75px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 0 20px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .brand-icon {
+            width: 43px;
+            height: 43px;
+            border-radius: 11px;
+            background: var(--theme-dark);
+            color: #fff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .brand-text strong {
+            display: block;
+            color: var(--theme-dark);
+            font-size: 17px;
+        }
+
+        .brand-text span {
+            font-size: 9px;
+            color: var(--text-muted);
+        }
+
+        .menu {
+            padding: 18px 12px;
+        }
+
+        .menu-title {
+            font-size: 10px;
+            font-weight: 600;
+            color: #aaa;
+            margin: 13px 10px 8px;
+            text-transform: uppercase;
+        }
+
+        .menu-item {
+            width: 100%;
+            border: none;
+            background: transparent;
+            padding: 11px 12px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: #666;
+            font-size: 13px;
+            text-align: left;
+            margin-bottom: 3px;
+        }
+
+        .menu-item i {
+            width: 19px;
+            text-align: center;
+        }
+
+        .menu-item:hover,
+        .menu-item.active {
+            background: #edf5fc;
+            color: var(--theme-dark);
+            font-weight: 600;
+        }
+
+        .main {
+            margin-left: 250px;
+            min-height: 100vh;
+        }
+
+        /* =========================================================
+           TOPBAR
+        ========================================================= */
+
+        .topbar {
+            height: 75px;
+            background: #fff;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 28px;
+            position: sticky;
+            top: 0;
+            z-index: 900;
+        }
+
+        .page-title h2 {
+            font-size: 20px;
+        }
+
+        .page-title span {
+            font-size: 11px;
+            color: var(--text-muted);
+        }
+
+        .top-actions {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .icon-btn {
+            width: 38px;
+            height: 38px;
+            border: 1px solid var(--border);
+            background: #fff;
+            border-radius: 9px;
+            color: #777;
+        }
+
+        .profile {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .avatar {
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            background: var(--theme-dark);
+            color: #fff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .profile-info strong {
+            display: block;
+            font-size: 12px;
+        }
+
+        .profile-info span {
+            font-size: 10px;
+            color: var(--text-muted);
+        }
+
+        /* =========================================================
+           CONTENT
+        ========================================================= */
+
+        .content {
+            padding: 28px;
+        }
+
+        .view {
+            display: none;
+        }
+
+        .view.active {
+            display: block;
+        }
+
+        .welcome {
+            background:
+                linear-gradient(
+                    110deg,
+                    var(--theme-dark),
+                    var(--theme-light)
+                );
+            color: #fff;
+            padding: 25px;
+            border-radius: var(--radius);
+            margin-bottom: 22px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            overflow: hidden;
+        }
+
+        .welcome h2 {
+            font-size: 22px;
+            margin-bottom: 5px;
+        }
+
+        .welcome p {
+            font-size: 12px;
+            opacity: .85;
+        }
+
+        .welcome-icon {
+            font-size: 75px;
+            opacity: .12;
+        }
+
+        /* =========================================================
+           CARDS
+        ========================================================= */
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns:
+                repeat(4, minmax(0, 1fr));
+            gap: 18px;
+            margin-bottom: 22px;
+        }
+
+        .stat-card {
+            background: #fff;
+            padding: 19px;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .stat-card .stat-icon {
+            width: 47px;
+            height: 47px;
+            border-radius: 11px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 19px;
+        }
+
+        .blue {
+            background: #eaf3fc;
+            color: var(--theme-dark);
+        }
+
+        .green-bg {
+            background: #eff8e7;
+            color: var(--green);
+        }
+
+        .orange-bg {
+            background: #fff3df;
+            color: var(--orange);
+        }
+
+        .teal-bg {
+            background: #e5f8f8;
+            color: var(--teal);
+        }
+
+        .stat-card h3 {
+            font-size: 23px;
+        }
+
+        .stat-card p {
+            color: var(--text-muted);
+            font-size: 11px;
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns:
+                1.6fr 1fr;
+            gap: 20px;
+        }
+
+        .card {
+            background: #fff;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            padding: 20px;
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 18px;
+        }
+
+        .card-header h3 {
+            font-size: 15px;
+        }
+
+        .card-header span {
+            font-size: 11px;
+            color: var(--text-muted);
+        }
+
+        canvas {
+            max-height: 280px;
+        }
+
+        /* =========================================================
+           TOOLBAR
+        ========================================================= */
+
+        .toolbar {
+            background: #fff;
+            padding: 15px;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            margin-bottom: 18px;
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .toolbar-left,
+        .toolbar-right {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .search {
+            position: relative;
+        }
+
+        .search i {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #aaa;
+        }
+
+        .search input {
+            width: 240px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 10px 10px 10px 36px;
+            outline: none;
+        }
+
+        .btn {
+            border: none;
+            border-radius: 8px;
+            padding: 10px 14px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .btn-primary {
+            background: var(--theme-dark);
+            color: #fff;
+        }
+
+        .btn-green {
+            background: var(--green);
+            color: #fff;
+        }
+
+        .btn-orange {
+            background: var(--orange);
+            color: #fff;
+        }
+
+        .btn-light {
+            background: #f1f4f7;
+            color: #555;
+        }
+
+        /* =========================================================
+           TABLE
+        ========================================================= */
+
+        .table-card {
+            background: #fff;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            overflow: hidden;
+        }
+
+        .table-wrapper {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 750px;
+        }
+
+        th,
+        td {
+            padding: 13px 15px;
+            text-align: left;
+            border-bottom: 1px solid #f0f0f0;
+            font-size: 12px;
+        }
+
+        th {
+            background: #f8fafc;
+            color: #666;
+            font-size: 10px;
+            text-transform: uppercase;
+        }
+
+        tr:hover td {
+            background: #fafcff;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 20px;
+            font-size: 9px;
+            font-weight: 600;
+        }
+
+        .badge-success {
+            background: #e9f6df;
+            color: #5f9328;
+        }
+
+        .badge-warning {
+            background: #fff0d8;
+            color: #d77b00;
+        }
+
+        .badge-danger {
+            background: #ffe4e4;
+            color: #c40000;
+        }
+
+        .badge-info {
+            background: #e5f3ff;
+            color: var(--theme-dark);
+        }
+
+        /* =========================================================
+           BOARD MODULE
+        ========================================================= */
+
+        .board-banner {
+            background:
+                linear-gradient(
+                    110deg,
+                    #0f5298,
+                    #1e78be
+                );
+            color: #fff;
+            border-radius: var(--radius);
+            padding: 22px;
+            margin-bottom: 20px;
+        }
+
+        .board-banner h2 {
+            font-size: 19px;
+        }
+
+        .board-banner p {
+            font-size: 11px;
+            opacity: .85;
+            margin-top: 4px;
+        }
+
+        .board-grid {
+            display: grid;
+            grid-template-columns:
+                repeat(3, minmax(0,1fr));
+            gap: 18px;
+        }
+
+        .board-card {
+            background: #fff;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            padding: 20px;
+        }
+
+        .board-card i {
+            color: var(--theme-dark);
+            font-size: 25px;
+            margin-bottom: 12px;
+        }
+
+        .board-card h3 {
+            font-size: 14px;
+            margin-bottom: 6px;
+        }
+
+        .board-card p {
+            color: var(--text-muted);
+            font-size: 11px;
+            line-height: 1.7;
+        }
+
+        /* =========================================================
+           FORMS
+        ========================================================= */
+
+        .form-grid {
+            display: grid;
+            grid-template-columns:
+                repeat(2, minmax(0,1fr));
+            gap: 16px;
+        }
+
+        .form-grid.three {
+            grid-template-columns:
+                repeat(3, minmax(0,1fr));
+        }
+
+        .form-actions {
+            margin-top: 18px;
+            display: flex;
+            gap: 10px;
+        }
+
+        /* =========================================================
+           EMPTY
+        ========================================================= */
+
+        .empty {
+            text-align: center;
+            padding: 50px 20px;
+            color: var(--text-muted);
+        }
+
+        .empty i {
+            font-size: 38px;
+            margin-bottom: 12px;
+            opacity: .5;
+        }
+
+        /* =========================================================
+           TOAST
+        ========================================================= */
+
+        #toast {
+            position: fixed;
+            right: 25px;
+            bottom: 25px;
+            background: #222;
+            color: #fff;
+            padding: 13px 18px;
+            border-radius: 9px;
+            font-size: 12px;
+            display: none;
+            z-index: 9999;
+            box-shadow: var(--shadow);
+        }
+
+        /* =========================================================
+           MOBILE
+        ========================================================= */
+
+        .mobile-menu {
+            display: none;
+        }
+
+        @media(max-width: 1100px) {
+
+            .stats-grid {
+                grid-template-columns:
+                    repeat(2,1fr);
+            }
+
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .board-grid {
+                grid-template-columns:
+                    repeat(2,1fr);
+            }
+
+        }
+
+        @media(max-width: 800px) {
+
+            .sidebar {
+                transform: translateX(-100%);
+                transition: .25s;
+            }
+
+            .sidebar.open {
+                transform: translateX(0);
+            }
+
+            .main {
+                margin-left: 0;
+            }
+
+            .mobile-menu {
+                display: inline-flex;
+                margin-right: 10px;
+            }
+
+            .content {
+                padding: 17px;
+            }
+
+            .topbar {
+                padding: 0 15px;
+            }
+
+            .profile-info {
+                display: none;
+            }
+
+            .form-grid,
+            .form-grid.three,
+            .board-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .welcome-icon {
+                display: none;
+            }
+
+        }
+
+        @media(max-width: 500px) {
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .login-box {
+                padding: 25px;
+            }
+
+            .search input {
+                width: 100%;
+            }
+
+            .toolbar {
+                align-items: stretch;
+            }
+
+            .toolbar-left,
+            .toolbar-right {
+                width: 100%;
+            }
+
+        }
+
+        /* =========================================================
+           PRINT
+        ========================================================= */
+
+        @media print {
+
+            .sidebar,
+            .topbar,
+            .toolbar,
+            .no-print {
+                display: none !important;
+            }
+
+            .main {
+                margin-left: 0;
+            }
+
+            .content {
+                padding: 0;
+            }
+
+            body {
+                background: #fff;
+            }
+
+            .card,
+            .table-card {
+                box-shadow: none;
+                border: 1px solid #ddd;
+            }
+
+        }
+
+    </style>
+</head>
+
+<body>
+
+<!-- ============================================================
+     LOGIN
+============================================================ -->
+
+<section id="loginScreen">
+
+    <div class="login-box">
+
+        <div class="login-logo">
+            <i class="fa-solid fa-school"></i>
+        </div>
+
+        <h1>SCMS</h1>
+
+        <div class="subtitle">
+            KPK School Management System
+        </div>
+
+        <div
+            id="loginError"
+            class="login-error"
+        ></div>
+
+        <form id="loginForm">
+
+            <div class="field">
+
+                <label>Email</label>
+
+                <div class="input-wrapper">
+
+                    <i class="fa-solid fa-envelope"></i>
+
+                    <input
+                        id="email"
+                        type="email"
+                        placeholder="admin@school.edu.pk"
+                        required
+                    />
+
+                </div>
+
+            </div>
+
+            <div class="field">
+
+                <label>Password</label>
+
+                <div class="input-wrapper">
+
+                    <i class="fa-solid fa-lock"></i>
+
+                    <input
+                        id="password"
+                        type="password"
+                        placeholder="Enter password"
+                        required
+                    />
+
+                </div>
+
+            </div>
+
+            <button
+                class="login-btn"
+                type="submit"
+            >
+                <i class="fa-solid fa-right-to-bracket"></i>
+                Login
+            </button>
+
+        </form>
+
+        <div class="login-note">
+            Secured by Supabase Authentication
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- ============================================================
+     APPLICATION
+============================================================ -->
+
+<div id="app">
+
+    <!-- SIDEBAR -->
+
+    <aside
+        id="sidebar"
+        class="sidebar"
+    >
+
+        <div class="brand">
+
+            <div class="brand-icon">
+                <i class="fa-solid fa-school"></i>
+            </div>
+
+            <div class="brand-text">
+                <strong>SCMS</strong>
+                <span>School Management System</span>
+            </div>
+
+        </div>
+
+
+        <div class="menu">
+
+            <div class="menu-title">
+                Main
+            </div>
+
+            <button
+                class="menu-item active"
+                data-view="dashboard"
+            >
+                <i class="fa-solid fa-chart-pie"></i>
+                Dashboard
+            </button>
+
+            <button
+                class="menu-item"
+                data-view="students"
+            >
+                <i class="fa-solid fa-user-graduate"></i>
+                Students
+            </button>
+
+            <button
+                class="menu-item"
+                data-view="teachers"
+            >
+                <i class="fa-solid fa-chalkboard-user"></i>
+                Teachers
+            </button>
+
+            <button
+                class="menu-item"
+                data-view="attendance"
+            >
+                <i class="fa-solid fa-calendar-check"></i>
+                Attendance
+            </button>
+
+
+            <div class="menu-title">
+                Academic
+            </div>
+
+            <button
+                class="menu-item"
+                data-view="classes"
+            >
+                <i class="fa-solid fa-school"></i>
+                Classes
+            </button>
+
+            <button
+                class="menu-item"
+                data-view="marks"
+            >
+                <i class="fa-solid fa-file-pen"></i>
+                Marks & Results
+            </button>
+
+            <button
+                class="menu-item"
+                data-view="board"
+            >
+                <i class="fa-solid fa-landmark"></i>
+                BISE / KP Board
+            </button>
+
+            <button
+                class="menu-item"
+                data-view="timetable"
+            >
+                <i class="fa-solid fa-clock"></i>
+                Timetable
+            </button>
+
+
+            <div class="menu-title">
+                Finance
+            </div>
+
+            <button
+                class="menu-item"
+                data-view="fees"
+            >
+                <i class="fa-solid fa-money-bill-wave"></i>
+                Fees
+            </button>
+
+
+            <div class="menu-title">
+                Administration
+            </div>
+
+            <button
+                class="menu-item"
+                data-view="reports"
+            >
+                <i class="fa-solid fa-file-lines"></i>
+                Reports
+            </button>
+
+            <button
+                class="menu-item"
+                data-view="certificates"
+            >
+                <i class="fa-solid fa-certificate"></i>
+                Certificates
+            </button>
+
+            <button
+                class="menu-item"
+                data-view="notices"
+            >
+                <i class="fa-solid fa-bullhorn"></i>
+                Notices
+            </button>
+
+
+            <div class="menu-title">
+                System
+            </div>
+
+            <button
+                class="menu-item"
+                data-view="settings"
+            >
+                <i class="fa-solid fa-gear"></i>
+                Settings
+            </button>
+
+            <button
+                id="logoutBtn"
+                class="menu-item"
+            >
+                <i class="fa-solid fa-right-from-bracket"></i>
+                Logout
+            </button>
+
+        </div>
+
+    </aside>
+
+
+    <!-- MAIN -->
+
+    <main class="main">
+
+        <!-- TOPBAR -->
+
+        <header class="topbar">
+
+            <div class="page-title">
+
+                <button
+                    id="mobileMenu"
+                    class="icon-btn mobile-menu"
+                >
+                    <i class="fa-solid fa-bars"></i>
+                </button>
+
+                <h2 id="currentTitle">
+                    Dashboard
+                </h2>
+
+                <span>
+                    Charsadda, Khyber Pakhtunkhwa
+                </span>
+
+            </div>
+
+
+            <div class="top-actions">
+
+                <button
+                    class="icon-btn"
+                    onclick="toggleLanguage()"
+                    title="Language"
+                >
+                    <i class="fa-solid fa-language"></i>
+                </button>
+
+                <button
+                    class="icon-btn"
+                    onclick="showToast('No new notifications')"
+                >
+                    <i class="fa-regular fa-bell"></i>
+                </button>
+
+                <div class="profile">
+
+                    <div
+                        id="avatar"
+                        class="avatar"
+                    >
+                        A
+                    </div>
+
+                    <div class="profile-info">
+
+                        <strong id="userName">
+                            Administrator
+                        </strong>
+
+                        <span id="userRole">
+                            Admin
+                        </span>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </header>
+
+
+        <!-- CONTENT -->
+
+        <section class="content">
+
+
+            <!-- =================================================
+                 DASHBOARD
+            ================================================= -->
+
+            <div
+                id="dashboard"
+                class="view active"
+            >
+
+                <div class="welcome">
+
+                    <div>
+
+                        <h2>
+                            Assalam-o-Alaikum,
+                            <span id="welcomeName">
+                                Administrator
+                            </span>
+                        </h2>
+
+                        <p>
+                            Manage your school's academic,
+                            administrative and board operations.
+                        </p>
+
+                    </div>
+
+                    <div class="welcome-icon">
+                        <i class="fa-solid fa-school"></i>
+                    </div>
+
+                </div>
+
+
+                <div class="stats-grid">
+
+                    <div class="stat-card">
+
+                        <div>
+                            <p>Total Students</p>
+                            <h3 id="totalStudents">0</h3>
+                        </div>
+
+                        <div class="stat-icon blue">
+                            <i class="fa-solid fa-user-graduate"></i>
+                        </div>
+
+                    </div>
+
+
+                    <div class="stat-card">
+
+                        <div>
+                            <p>Teachers</p>
+                            <h3 id="totalTeachers">0</h3>
+                        </div>
+
+                        <div class="stat-icon green-bg">
+                            <i class="fa-solid fa-chalkboard-user"></i>
+                        </div>
+
+                    </div>
+
+
+                    <div class="stat-card">
+
+                        <div>
+                            <p>Monthly Fees</p>
+                            <h3 id="monthlyFees">
+                                PKR 0
+                            </h3>
+                        </div>
+
+                        <div class="stat-icon orange-bg">
+                            <i class="fa-solid fa-money-bill"></i>
+                        </div>
+
+                    </div>
+
+
+                    <div class="stat-card">
+
+                        <div>
+                            <p>Attendance</p>
+                            <h3 id="attendancePercent">
+                                0%
+                            </h3>
+                        </div>
+
+                        <div class="stat-icon teal-bg">
+                            <i class="fa-solid fa-calendar-check"></i>
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <div class="dashboard-grid">
+
+                    <div class="card">
+
+                        <div class="card-header">
+
+                            <h3>
+                                Student Admissions
+                            </h3>
+
+                            <span>
+                                Current Academic Year
+                            </span>
+
+                        </div>
+
+                        <canvas id="admissionChart"></canvas>
+
+                    </div>
+
+
+                    <div class="card">
+
+                        <div class="card-header">
+
+                            <h3>
+                                Fee Collection
+                            </h3>
+
+                            <span>
+                                PKR
+                            </span>
+
+                        </div>
+
+                        <canvas id="feeChart"></canvas>
+
+                    </div>
+
+                </div>
+
+
+                <br>
+
+
+                <div class="dashboard-grid">
+
+                    <div class="table-card">
+
+                        <div class="card-header" style="padding:20px 20px 0">
+
+                            <h3>
+                                Recent Students
+                            </h3>
+
+                            <button
+                                class="btn btn-light"
+                                onclick="openView('students')"
+                            >
+                                View All
+                            </button>
+
+                        </div>
+
+                        <div class="table-wrapper">
+
+                            <table>
+
+                                <thead>
+
+                                    <tr>
+                                        <th>Student</th>
+                                        <th>Class</th>
+                                        <th>Roll No</th>
+                                        <th>Status</th>
+                                    </tr>
+
+                                </thead>
+
+                                <tbody id="recentStudents"></tbody>
+
+                            </table>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="card">
+
+                        <div class="card-header">
+
+                            <h3>
+                                Board Classes
+                            </h3>
+
+                        </div>
+
+                        <div
+                            style="
+                            display:flex;
+                            flex-direction:column;
+                            gap:12px;
+                            "
+                        >
+
+                            <div
+                                style="
+                                display:flex;
+                                justify-content:space-between;
+                                padding:12px;
+                                background:#f7f9fc;
+                                border-radius:8px;
+                                "
+                            >
+
+                                <span>
+                                    Class 9th
+                                </span>
+
+                                <strong>
+                                    <span id="class9Count">0</span>
+                                </strong>
+
+                            </div>
+
+                            <div
+                                style="
+                                display:flex;
+                                justify-content:space-between;
+                                padding:12px;
+                                background:#f7f9fc;
+                                border-radius:8px;
+                                "
+                            >
+
+                                <span>
+                                    Class 10th
+                                </span>
+
+                                <strong>
+                                    <span id="class10Count">0</span>
+                                </strong>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- =================================================
+                 STUDENTS
+            ================================================= -->
+
+            <div
+                id="students"
+                class="view"
+            >
+
+                <div class="toolbar">
+
+                    <div class="toolbar-left">
+
+                        <div class="search">
+
+                            <i class="fa-solid fa-search"></i>
+
+                            <input
+                                id="studentSearch"
+                                type="search"
+                                placeholder="Search student..."
+                            />
+
+                        </div>
+
+                        <select
+                            id="studentClassFilter"
+                            class="btn-light"
+                            style="
+                            border:1px solid #e5e9ef;
+                            padding:9px;
+                            border-radius:8px;
+                            "
+                        >
+
+                            <option value="">
+                                All Classes
+                            </option>
+
+                            <option value="9th">
+                                Class 9th
+                            </option>
+
+                            <option value="10th">
+                                Class 10th
+                            </option>
+
+                        </select>
+
+                    </div>
+
+                    <div class="toolbar-right">
+
+                        <button
+                            class="btn btn-primary"
+                            onclick="openStudentForm()"
+                        >
+                            <i class="fa-solid fa-plus"></i>
+                            Add Student
+                        </button>
+
+                    </div>
+
+                </div>
+
+
+                <div
+                    id="studentFormCard"
+                    class="card"
+                    style="display:none;margin-bottom:18px;"
+                >
+
+                    <div class="card-header">
+
+                        <h3>
+                            Register New Student
+                        </h3>
+
+                        <button
+                            class="btn btn-light"
+                            onclick="closeStudentForm()"
+                        >
+                            Close
+                        </button>
+
+                    </div>
+
+
+                    <form id="studentForm">
+
+                        <div class="form-grid">
+
+                            <div class="field">
+
+                                <label>Student Name</label>
+
+                                <input
+                                    id="studentName"
+                                    required
+                                    placeholder="Full name"
+                                />
+
+                            </div>
+
+                            <div class="field">
+
+                                <label>Father Name</label>
+
+                                <input
+                                    id="fatherName"
+                                    placeholder="Father name"
+                                />
+
+                            </div>
+
+                            <div class="field">
+
+                                <label>Class</label>
+
+                                <select
+                                    id="studentClass"
+                                    required
+                                >
+
+                                    <option value="">
+                                        Select Class
+                                    </option>
+
+                                    <option value="9th">
+                                        9th
+                                    </option>
+
+                                    <option value="10th">
+                                        10th
+                                    </option>
+
+                                </select>
+
+                            </div>
+
+                            <div class="field">
+
+                                <label>Roll Number</label>
+
+                                <input
+                                    id="rollNumber"
+                                    placeholder="School roll number"
+                                />
+
+                            </div>
+
+                            <div class="field">
+
+                                <label>Phone</label>
+
+                                <input
+                                    id="studentPhone"
+                                    placeholder="03XX XXXXXXX"
+                                />
+
+                            </div>
+
+                            <div class="field">
+
+                                <label>Transport Route</label>
+
+                                <input
+                                    id="studentRoute"
+                                    placeholder="Charsadda / Tangi / Shabqadar..."
+                                />
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="form-actions">
+
+                            <button
+                                class="btn btn-primary"
+                                type="submit"
+                            >
+                                Save Student
+                            </button>
+
+                            <button
+                                class="btn btn-light"
+                                type="button"
+                                onclick="closeStudentForm()"
+                            >
+                                Cancel
+                            </button>
+
+                        </div>
+
+                    </form>
+
+                </div>
+
+
+                <div class="table-card">
+
+                    <div class="table-wrapper">
+
+                        <table>
+
+                            <thead>
+
+                                <tr>
+
+                                    <th>Name</th>
+                                    <th>Father</th>
+                                    <th>Class</th>
+                                    <th>Roll No</th>
+                                    <th>Route</th>
+                                    <th>BISE</th>
+                                    <th>Action</th>
+
+                                </tr>
+
+                            </thead>
+
+                            <tbody id="studentsTable"></tbody>
+
+                        </table>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- =================================================
+                 TEACHERS
+            ================================================= -->
+
+            <div
+                id="teachers"
+                class="view"
+            >
+
+                <div class="toolbar">
+
+                    <div>
+                        <h3 style="font-size:16px;">
+                            Teachers & Staff
+                        </h3>
+
+                        <span
+                            style="
+                            font-size:11px;
+                            color:#777;
+                            "
+                        >
+                            Manage teaching staff
+                        </span>
+                    </div>
+
+                    <button
+                        class="btn btn-primary"
+                        onclick="showToast('Teacher form can be connected to Supabase profiles table.')"
+                    >
+                        <i class="fa-solid fa-plus"></i>
+                        Add Teacher
+                    </button>
+
+                </div>
+
+
+                <div class="table-card">
+
+                    <div class="table-wrapper">
+
+                        <table>
+
+                            <thead>
+
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Subject</th>
+                                    <th>Phone</th>
+                                    <th>Attendance</th>
+                                    <th>Status</th>
+                                </tr>
+
+                            </thead>
+
+                            <tbody id="teachersTable">
+
+                                <tr>
+                                    <td colspan="5">
+                                        <div class="empty">
+                                            <i class="fa-solid fa-chalkboard-user"></i>
+                                            <p>No teacher records loaded.</p>
+                                        </div>
+                                    </td>
+                                </tr>
+
+                            </tbody>
+
+                        </table>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- =================================================
+                 ATTENDANCE
+            ================================================= -->
+
+            <div
+                id="attendance"
+                class="view"
+            >
+
+                <div class="toolbar">
+
+                    <div class="toolbar-left">
+
+                        <input
+                            type="date"
+                            id="attendanceDate"
+                            class="btn-light"
+                            style="
+                            border:1px solid #e5e9ef;
+                            padding:9px;
+                            border-radius:8px;
+                            "
+                        />
+
+                        <select
+                            id="attendanceClass"
+                            class="btn-light"
+                            style="
+                            border:1px solid #e5e9ef;
+                            padding:9px;
+                            border-radius:8px;
+                            "
+                        >
+
+                            <option>9th</option>
+                            <option>10th</option>
+
+                        </select>
+
+                    </div>
+
+                    <button
+                        class="btn btn-primary"
+                        onclick="saveAttendance()"
+                    >
+                        <i class="fa-solid fa-floppy-disk"></i>
+                        Save Attendance
+                    </button>
+
+                </div>
+
+
+                <div class="card">
+
+                    <div class="card-header">
+
+                        <h3>
+                            Daily Student Attendance
+                        </h3>
+
+                        <span>
+                            Present / Absent / Leave
+                        </span>
+
+                    </div>
+
+                    <div
+                        id="attendanceList"
+                    >
+
+                        <div class="empty">
+
+                            <i class="fa-solid fa-calendar-check"></i>
+
+                            <p>
+                                Select a class to load students.
+                            </p>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- =================================================
+                 CLASSES
+            ================================================= -->
+
+            <div
+                id="classes"
+                class="view"
+            >
+
+                <div class="stats-grid">
+
+                    <div class="stat-card">
+
+                        <div>
+                            <p>Class 9th</p>
+                            <h3 id="classes9">0</h3>
+                        </div>
+
+                        <div class="stat-icon blue">
+                            <i class="fa-solid fa-users"></i>
+                        </div>
+
+                    </div>
+
+                    <div class="stat-card">
+
+                        <div>
+                            <p>Class 10th</p>
+                            <h3 id="classes10">0</h3>
+                        </div>
+
+                        <div class="stat-icon green-bg">
+                            <i class="fa-solid fa-users"></i>
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <div class="card">
+
+                    <div class="card-header">
+
+                        <h3>
+                            Academic Classes
+                        </h3>
+
+                    </div>
+
+                    <div class="table-wrapper">
+
+                        <table>
+
+                            <thead>
+
+                                <tr>
+                                    <th>Class</th>
+                                    <th>Students</th>
+                                    <th>Board</th>
+                                    <th>Session</th>
+                                </tr>
+
+                            </thead>
+
+                            <tbody>
+
+                                <tr>
+                                    <td>9th</td>
+                                    <td id="classTable9">0</td>
+                                    <td>
+                                        <span class="badge badge-info">
+                                            BISE Peshawar
+                                        </span>
+                                    </td>
+                                    <td>2026-27</td>
+                                </tr>
+
+                                <tr>
+                                    <td>10th</td>
+                                    <td id="classTable10">0</td>
+                                    <td>
+                                        <span class="badge badge-info">
+                                            BISE Peshawar
+                                        </span>
+                                    </td>
+                                    <td>2026-27</td>
+                                </tr>
+
+                            </tbody>
+
+                        </table>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- =================================================
+                 MARKS
+            ================================================= -->
+
+            <div
+                id="marks"
+                class="view"
+            >
+
+                <div class="toolbar">
+
+                    <div>
+
+                        <h3 style="font-size:16px;">
+                            Marks & Results
+                        </h3>
+
+                        <span
+                            style="
+                            font-size:11px;
+                            color:#777;
+                            "
+                        >
+                            Tests, Midterms and Board Pre-Mocks
+                        </span>
+
+                    </div>
+
+                    <button
+                        class="btn btn-primary"
+                        onclick="showToast('Marks entry form ready for Supabase integration.')"
+                    >
+                        <i class="fa-solid fa-plus"></i>
+                        Enter Marks
+                    </button>
+
+                </div>
+
+
+                <div class="table-card">
+
+                    <div class="table-wrapper">
+
+                        <table>
+
+                            <thead>
+
+                                <tr>
+                                    <th>Student</th>
+                                    <th>Class</th>
+                                    <th>Exam</th>
+                                    <th>Theory</th>
+                                    <th>Practical</th>
+                                    <th>Total</th>
+                                    <th>Grade</th>
+                                </tr>
+
+                            </thead>
+
+                            <tbody id="marksTable">
+
+                                <tr>
+
+                                    <td colspan="7">
+
+                                        <div class="empty">
+
+                                            <i class="fa-solid fa-file-pen"></i>
+
+                                            <p>
+                                                No marks records available.
+                                            </p>
+
+                                        </div>
+
+                                    </td>
+
+                                </tr>
+
+                            </tbody>
+
+                        </table>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- =================================================
+                 BOARD
+            ================================================= -->
+
+            <div
+                id="board"
+                class="view"
+            >
+
+                <div class="board-banner">
+
+                    <h2>
+                        BISE Peshawar / KP Board
+                    </h2>
+
+                    <p>
+                        Class 9th & 10th board examination management.
+                    </p>
+
+                </div>
+
+
+                <div class="board-grid">
+
+                    <div class="board-card">
+
+                        <i class="fa-solid fa-id-card"></i>
+
+                        <h3>
+                            Board Registration
+                        </h3>
+
+                        <p>
+                            Track BISE registration number,
+                            student category, registration
+                            status and required documents.
+                        </p>
+
+                        <br>
+
+                        <button
+                            class="btn btn-primary"
+                            onclick="showToast('Board registration module')"
+                        >
+                            Open Module
+                        </button>
+
+                    </div>
+
+
+                    <div class="board-card">
+
+                        <i class="fa-solid fa-ticket"></i>
+
+                        <h3>
+                            Roll Number Slips
+                        </h3>
+
+                        <p>
+                            Store roll numbers and generate
+                            printable board examination slips.
+                        </p>
+
+                        <br>
+
+                        <button
+                            class="btn btn-primary"
+                            onclick="printBoardSlip()"
+                        >
+                            Print Slip
+                        </button>
+
+                    </div>
+
+
+                    <div class="board-card">
+
+                        <i class="fa-solid fa-square-poll-vertical"></i>
+
+                        <h3>
+                            Board Marks
+                        </h3>
+
+                        <p>
+                            Manage theory, practical and
+                            pre-mock marks for 9th and 10th.
+                        </p>
+
+                        <br>
+
+                        <button
+                            class="btn btn-primary"
+                            onclick="openView('marks')"
+                        >
+                            Marks Entry
+                        </button>
+
+                    </div>
+
+
+                    <div class="board-card">
+
+                        <i class="fa-solid fa-file-circle-check"></i>
+
+                        <h3>
+                            Board Documents
+                        </h3>
+
+                        <p>
+                            Upload registration forms,
+                            slips and related documents
+                            to Supabase Storage.
+                        </p>
+
+                        <br>
+
+                        <input
+                            type="file"
+                            id="boardDocument"
+                            hidden
+                        />
+
+                        <button
+                            class="btn btn-primary"
+                            onclick="document.getElementById('boardDocument').click()"
+                        >
+                            Upload Document
+                        </button>
+
+                    </div>
+
+
+                    <div class="board-card">
+
+                        <i class="fa-solid fa-certificate"></i>
+
+                        <h3>
+                            SLC
+                        </h3>
+
+                        <p>
+                            Generate School Leaving Certificate
+                            from student records.
+                        </p>
+
+                        <br>
+
+                        <button
+                            class="btn btn-primary"
+                            onclick="openCertificate('SLC')"
+                        >
+                            Generate SLC
+                        </button>
+
+                    </div>
+
+
+                    <div class="board-card">
+
+                        <i class="fa-solid fa-award"></i>
+
+                        <h3>
+                            Character Certificate
+                        </h3>
+
+                        <p>
+                            Generate printable student
+                            character certificates.
+                        </p>
+
+                        <br>
+
+                        <button
+                            class="btn btn-primary"
+                            onclick="openCertificate('Character')"
+                        >
+                            Generate
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- =================================================
+                 TIMETABLE
+            ================================================= -->
+
+            <div
+                id="timetable"
+                class="view"
+            >
+
+                <div class="toolbar">
+
+                    <div>
+
+                        <h3 style="font-size:16px;">
+                            Class Timetable
+                        </h3>
+
+                        <span
+                            style="
+                            font-size:11px;
+                            color:#777;
+                            "
+                        >
+                            Weekly schedule
+                        </span>
+
+                    </div>
+
+                    <button
+                        class="btn btn-primary"
+                        onclick="showToast('Timetable editor')"
+                    >
+                        <i class="fa-solid fa-plus"></i>
+                        Add Period
+                    </button>
+
+                </div>
+
+
+                <div class="table-card">
+
+                    <div class="table-wrapper">
+
+                        <table>
+
+                            <thead>
+
+                                <tr>
+
+                                    <th>Day</th>
+                                    <th>08:00</th>
+                                    <th>09:00</th>
+                                    <th>10:00</th>
+                                    <th>11:00</th>
+                                    <th>12:00</th>
+
+                                </tr>
+
+                            </thead>
+
+                            <tbody>
+
+                                <tr>
+                                    <td>Monday</td>
+                                    <td>Math</td>
+                                    <td>English</td>
+                                    <td>Physics</td>
+                                    <td>Urdu</td>
+                                    <td>Computer</td>
+                                </tr>
+
+                                <tr>
+                                    <td>Tuesday</td>
+                                    <td>Biology</td>
+                                    <td>Math</td>
+                                    <td>English</td>
+                                    <td>Islamiyat</td>
+                                    <td>Physics</td>
+                                </tr>
+
+                                <tr>
+                                    <td>Wednesday</td>
+                                    <td>Computer</td>
+                                    <td>Math</td>
+                                    <td>Urdu</td>
+                                    <td>Physics</td>
+                                    <td>English</td>
+                                </tr>
+
+                            </tbody>
+
+                        </table>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- =================================================
+                 FEES
+            ================================================= -->
+
+            <div
+                id="fees"
+                class="view"
+            >
+
+                <div class="stats-grid">
+
+                    <div class="stat-card">
+
+                        <div>
+                            <p>Collected</p>
+                            <h3 id="feeCollected">
+                                PKR 0
+                            </h3>
+                        </div>
+
+                        <div class="stat-icon green-bg">
+                            <i class="fa-solid fa-check"></i>
+                        </div>
+
+                    </div>
+
+
+                    <div class="stat-card">
+
+                        <div>
+                            <p>Pending</p>
+                            <h3 id="feePending">
+                                PKR 0
+                            </h3>
+                        </div>
+
+                        <div class="stat-icon orange-bg">
+                            <i class="fa-solid fa-clock"></i>
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <div class="toolbar">
+
+                    <div class="search">
+
+                        <i class="fa-solid fa-search"></i>
+
+                        <input
+                            id="feeSearch"
+                            placeholder="Search voucher..."
+                        />
+
+                    </div>
+
+                    <button
+                        class="btn btn-primary"
+                        onclick="showToast('Fee voucher generator')"
+                    >
+                        <i class="fa-solid fa-receipt"></i>
+                        Generate Voucher
+                    </button>
+
+                </div>
+
+
+                <div class="table-card">
+
+                    <div class="table-wrapper">
+
+                        <table>
+
+                            <thead>
+
+                                <tr>
+
+                                    <th>Voucher</th>
+                                    <th>Student</th>
+                                    <th>Tuition</th>
+                                    <th>Transport</th>
+                                    <th>Late Fine</th>
+                                    <th>Total</th>
+                                    <th>Status</th>
+
+                                </tr>
+
+                            </thead>
+
+                            <tbody id="feesTable"></tbody>
+
+                        </table>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- =================================================
+                 REPORTS
+            ================================================= -->
+
+            <div
+                id="reports"
+                class="view"
+            >
+
+                <div class="board-grid">
+
+                    <div class="board-card">
+
+                        <i class="fa-solid fa-users"></i>
+
+                        <h3>Student Report</h3>
+
+                        <p>
+                            Student enrollment and demographic report.
+                        </p>
+
+                        <button
+                            class="btn btn-primary"
+                            onclick="printReport('student')"
+                        >
+                            Print
+                        </button>
+
+                    </div>
+
+                    <div class="board-card">
+
+                        <i class="fa-solid fa-calendar-check"></i>
+
+                        <h3>Attendance Report</h3>
+
+                        <p>
+                            Daily and monthly attendance analysis.
+                        </p>
+
+                        <button
+                            class="btn btn-primary"
+                            onclick="printReport('attendance')"
+                        >
+                            Print
+                        </button>
+
+                    </div>
+
+                    <div class="board-card">
+
+                        <i class="fa-solid fa-money-bill"></i>
+
+                        <h3>Fee Report</h3>
+
+                        <p>
+                            Paid, pending and late fee analysis.
+                        </p>
+
+                        <button
+                            class="btn btn-primary"
+                            onclick="printReport('fees')"
+                        >
+                            Print
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- =================================================
+                 CERTIFICATES
+            ================================================= -->
+
+            <div
+                id="certificates"
+                class="view"
+            >
+
+                <div class="board-grid">
+
+                    <div class="board-card">
+
+                        <i class="fa-solid fa-certificate"></i>
+
+                        <h3>
+                            School Leaving Certificate
+                        </h3>
+
+                        <p>
+                            Generate SLC using student data.
+                        </p>
+
+                        <button
+                            class="btn btn-primary"
+                            onclick="openCertificate('SLC')"
+                        >
+                            Generate
+                        </button>
+
+                    </div>
+
+                    <div class="board-card">
+
+                        <i class="fa-solid fa-award"></i>
+
+                        <h3>
+                            Character Certificate
+                        </h3>
+
+                        <p>
+                            Generate student character certificate.
+                        </p>
+
+                        <button
+                            class="btn btn-primary"
+                            onclick="openCertificate('Character')"
+                        >
+                            Generate
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- =================================================
+                 NOTICES
+            ================================================= -->
+
+            <div
+                id="notices"
+                class="view"
+            >
+
+                <div class="toolbar">
+
+                    <div>
+
+                        <h3 style="font-size:16px;">
+                            School Notices
+                        </h3>
+
+                    </div>
+
+                    <button
+                        class="btn btn-primary"
+                        onclick="showToast('Notice composer')"
+                    >
+                        <i class="fa-solid fa-plus"></i>
+                        New Notice
+                    </button>
+
+                </div>
+
+
+                <div class="card">
+
+                    <div class="empty">
+
+                        <i class="fa-solid fa-bullhorn"></i>
+
+                        <p>
+                            No notices published.
+                        </p>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- =================================================
+                 SETTINGS
+            ================================================= -->
+
+            <div
+                id="settings"
+                class="view"
+            >
+
+                <div class="card">
+
+                    <div class="card-header">
+
+                        <h3>
+                            Supabase Configuration
+                        </h3>
+
+                    </div>
+
+
+                    <div class="form-grid">
+
+                        <div class="field">
+
+                            <label>
+                                Supabase URL
+                            </label>
+
+                            <input
+                                id="supabaseUrlInput"
+                                placeholder="https://xxxx.supabase.co"
+                            />
+
+                        </div>
+
+
+                        <div class="field">
+
+                            <label>
+                                Supabase Anon Public Key
+                            </label>
+
+                            <input
+                                id="supabaseKeyInput"
+                                type="password"
+                                placeholder="eyJ..."
+                            />
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="form-actions">
+
+                        <button
+                            class="btn btn-primary"
+                            onclick="saveSupabaseConfig()"
+                        >
+                            Save Configuration
+                        </button>
+
+                        <button
+                            class="btn btn-light"
+                            onclick="testSupabaseConnection()"
+                        >
+                            Test Connection
+                        </button>
+
+                    </div>
+
+                    <p
+                        style="
+                        margin-top:15px;
+                        font-size:11px;
+                        color:#777;
+                        "
+                    >
+                        Only use the Supabase public anon key in
+                        browser-side code. Never expose the
+                        Supabase service-role key.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+        </section>
+
+    </main>
+
+</div>
+
+
+<!-- TOAST -->
+
+<div id="toast"></div>
+
+
+<script>
+
+/* ================================================================
+   SUPABASE CONFIG
+================================================================ */
+
+let supabaseClient = null;
+
+const DEFAULT_SUPABASE_URL =
+    localStorage.getItem("scms_supabase_url") || "";
+
+const DEFAULT_SUPABASE_KEY =
+    localStorage.getItem("scms_supabase_key") || "";
+
+
+/* ================================================================
+   APPLICATION STATE
+================================================================ */
+
+const state = {
+    user: null,
+    profile: null,
+    students: [],
+    teachers: [],
+    fees: [],
+    marks: [],
+    attendance: [],
+    language: "en"
+};
+
+
+/* ================================================================
+   HELPERS
+================================================================ */
+
+function showToast(message) {
+
+    const toast =
+        document.getElementById("toast");
+
+    toast.textContent = message;
+    toast.style.display = "block";
+
+    clearTimeout(window.toastTimer);
+
+    window.toastTimer =
+        setTimeout(() => {
+            toast.style.display = "none";
+        }, 3000);
+}
+
+
+function escapeHTML(value) {
+
+    if (value === null || value === undefined) {
+        return "";
+    }
+
+    return String(value)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+}
+
+
+function formatPKR(value) {
+
+    return new Intl.NumberFormat("en-PK", {
+        maximumFractionDigits: 0
+    }).format(Number(value || 0));
+}
+
+
+function getInitials(name) {
+
+    if (!name) return "A";
+
+    return name
+        .split(" ")
+        .map(x => x[0])
+        .join("")
+        .substring(0, 2)
+        .toUpperCase();
+}
+
+
+/* ================================================================
+   SUPABASE INITIALIZATION
+================================================================ */
+
+function initializeSupabase() {
+
+    const url =
+        localStorage.getItem("scms_supabase_url");
+
+    const key =
+        localStorage.getItem("scms_supabase_key");
+
+    if (!url || !key) {
+        return false;
+    }
+
+    if (
+        typeof window.supabase === "undefined"
+    ) {
+        console.error("Supabase library not loaded.");
+        return false;
+    }
+
+    supabaseClient =
+        window.supabase.createClient(
+            url,
+            key,
+            {
+                auth: {
+                    persistSession: true,
+                    autoRefreshToken: true,
+                    detectSessionInUrl: true
+                }
+            }
+        );
+
+    return true;
+}
+
+
+/* ================================================================
+   SUPABASE CONFIG
+================================================================ */
+
+function saveSupabaseConfig() {
+
+    const url =
+        document
+            .getElementById("supabaseUrlInput")
+            .value
+            .trim();
+
+    const key =
+        document
+            .getElementById("supabaseKeyInput")
+            .value
+            .trim();
+
+    if (!url || !key) {
+
+        showToast(
+            "Supabase URL and public key are required."
+        );
+
+        return;
+    }
+
+    localStorage.setItem(
+        "scms_supabase_url",
+        url
+    );
+
+    localStorage.setItem(
+        "scms_supabase_key",
+        key
+    );
+
+    initializeSupabase();
+
+    showToast(
+        "Supabase configuration saved."
+    );
+}
+
+
+async function testSupabaseConnection() {
+
+    if (!supabaseClient) {
+
+        if (!initializeSupabase()) {
+
+            showToast(
+                "Configure Supabase first."
+            );
+
+            return;
+        }
+    }
+
+    try {
+
+        const {
+            error
+        } = await supabaseClient
+            .from("students")
+            .select("id")
+            .limit(1);
+
+        if (error) {
+            throw error;
+        }
+
+        showToast(
+            "Supabase connection successful."
+        );
+
+    } catch (error) {
+
+        console.error(error);
+
+        showToast(
+            "Connection failed. Check URL, key and RLS."
+        );
+    }
+}
+
+
+/* ================================================================
+   AUTH
+================================================================ */
+
+async function login(email, password) {
+
+    if (!supabaseClient) {
+
+        if (!initializeSupabase()) {
+
+            showLoginError(
+                "Supabase is not configured. Open Settings after local demo login or configure your Supabase URL and anon key."
+            );
+
+            return;
+        }
+    }
+
+    try {
+
+        const {
+            data,
+            error
+        } = await supabaseClient.auth.signInWithPassword({
+            email,
+            password
+        });
+
+        if (error) {
+            throw error;
+        }
+
+        state.user = data.user;
+
+        await loadProfile();
+
+        showApplication();
+
+    } catch (error) {
+
+        console.error(error);
+
+        showLoginError(
+            error.message ||
+            "Login failed."
+        );
+    }
+}
+
+
+async function loadProfile() {
+
+    if (!state.user || !supabaseClient) {
+        return;
+    }
+
+    try {
+
+        const {
+            data,
+            error
+        } = await supabaseClient
+            .from("profiles")
+            .select("*")
+            .eq("id", state.user.id)
+            .single();
+
+        if (error) {
+            throw error;
+        }
+
+        state.profile = data;
+
+    } catch (error) {
+
+        console.warn(
+            "Profile not loaded:",
+            error.message
+        );
+
+        state.profile = {
+            full_name:
+                state.user.user_metadata?.full_name ||
+                state.user.email ||
+                "Administrator",
+
+            role:
+                state.user.user_metadata?.role ||
+                "admin"
+        };
+    }
+}
+
+
+async function logout() {
+
+    if (supabaseClient) {
+
+        await supabaseClient.auth.signOut();
+
+    }
+
+    state.user = null;
+    state.profile = null;
+
+    document
+        .getElementById("app")
+        .style.display = "none";
+
+    document
+        .getElementById("loginScreen")
+        .style.display = "flex";
+}
+
+
+function showLoginError(message) {
+
+    const error =
+        document.getElementById("loginError");
+
+    error.textContent = message;
+    error.style.display = "block";
+}
+
+
+/* ================================================================
+   APPLICATION UI
+================================================================ */
+
+function showApplication() {
+
+    document
+        .getElementById("loginScreen")
+        .style.display = "none";
+
+    document
+        .getElementById("app")
+        .style.display = "block";
+
+    updateProfileUI();
+
+    loadAllData();
+}
+
+
+function updateProfileUI() {
+
+    const profile =
+        state.profile || {};
+
+    const name =
+        profile.full_name ||
+        state.user?.email ||
+        "Administrator";
+
+    const role =
+        profile.role ||
+        "admin";
+
+    document
+        .getElementById("userName")
+        .textContent = name;
+
+    document
+        .getElementById("welcomeName")
+        .textContent = name;
+
+    document
+        .getElementById("userRole")
+        .textContent =
+        role.charAt(0).toUpperCase() +
+        role.slice(1);
+
+    document
+        .getElementById("avatar")
+        .textContent =
+        getInitials(name);
+}
+
+
+/* ================================================================
+   NAVIGATION
+================================================================ */
+
+function openView(viewName) {
+
+    document
+        .querySelectorAll(".view")
+        .forEach(view => {
+            view.classList.remove("active");
+        });
+
+    const target =
+        document.getElementById(viewName);
+
+    if (target) {
+        target.classList.add("active");
+    }
+
+    document
+        .querySelectorAll(".menu-item[data-view]")
+        .forEach(item => {
+
+            item.classList.toggle(
+                "active",
+                item.dataset.view === viewName
+            );
+
+        });
+
+    const menuItem =
+        document.querySelector(
+            `.menu-item[data-view="${viewName}"]`
+        );
+
+    if (menuItem) {
+
+        const text =
+            menuItem.textContent.trim();
+
+        document
+            .getElementById("currentTitle")
+            .textContent = text;
+    }
+
+    document
+        .getElementById("sidebar")
+        .classList.remove("open");
+}
+
+
+/* ================================================================
+   LOAD DATA
+================================================================ */
+
+async function loadAllData() {
+
+    if (!supabaseClient) {
+
+        loadDemoData();
+
+        return;
+    }
+
+    await Promise.all([
+        loadStudents(),
+        loadTeachers(),
+        loadFees(),
+        loadMarks()
+    ]);
+
+    updateDashboard();
+}
+
+
+async function loadStudents() {
+
+    try {
+
+        const {
+            data,
+            error
+        } = await supabaseClient
+            .from("students")
+            .select("*")
+            .order("created_at", {
+                ascending: false
+            });
+
+        if (error) {
+            throw error;
+        }
+
+        state.students = data || [];
+
+    } catch (error) {
+
+        console.error(
+            "Students:",
+            error
+        );
+
+        state.students = [];
+    }
+
+    renderStudents();
+    updateDashboard();
+}
+
+
+async function loadTeachers() {
+
+    try {
+
+        const {
+            data,
+            error
+        } = await supabaseClient
+            .from("profiles")
+            .select("*")
+            .eq("role", "teacher");
+
+        if (error) {
+            throw error;
+        }
+
+        state.teachers = data || [];
+
+    } catch (error) {
+
+        console.error(
+            "Teachers:",
+            error
+        );
+
+        state.teachers = [];
+    }
+
+    renderTeachers();
+    updateDashboard();
+}
+
+
+async function loadFees() {
+
+    try {
+
+        const {
+            data,
+            error
+        } = await supabaseClient
+            .from("fees")
+            .select("*")
+            .order("created_at", {
+                ascending: false
+            });
+
+        if (error) {
+            throw error;
+        }
+
+        state.fees = data || [];
+
+    } catch (error) {
+
+        console.error(
+            "Fees:",
+            error
+        );
+
+        state.fees = [];
+    }
+
+    renderFees();
+    updateDashboard();
+}
+
+
+async function loadMarks() {
+
+    try {
+
+        const {
+            data,
+            error
+        } = await supabaseClient
+            .from("marks")
+            .select(`
+                *,
+                students (
+                    name,
+                    class
+                )
+            `)
+            .order("created_at", {
+                ascending: false
+            });
+
+        if (error) {
+            throw error;
+        }
+
+        state.marks = data || [];
+
+    } catch (error) {
+
+        console.error(
+            "Marks:",
+            error
+        );
+
+        state.marks = [];
+    }
+
+    renderMarks();
+}
+
+
+/* ================================================================
+   DEMO DATA
+================================================================ */
+
+function loadDemoData() {
+
+    state.students = [
+        {
+            id: 1,
+            name: "Muhammad Ahmad",
+            father_name: "Muhammad Aslam",
+            class: "10th",
+            roll_number: "101",
+            route: "Charsadda",
+            bise_status: "Registered"
+        },
+        {
+            id: 2,
+            name: "Abdul Rahman",
+            father_name: "Said Rahman",
+            class: "10th",
+            roll_number: "102",
+            route: "Tangi",
+            bise_status: "Pending"
+        },
+        {
+            id: 3,
+            name: "Hamza Khan",
+            father_name: "Nawab Khan",
+            class: "9th",
+            roll_number: "201",
+            route: "Shabqadar",
+            bise_status: "Registered"
+        }
+    ];
+
+    state.teachers = [
+        {
+            full_name: "Muhammad Usman",
+            subject: "Mathematics",
+            phone: "03XX XXXXXXX"
+        },
+        {
+            full_name: "Sana Bibi",
+            subject: "English",
+            phone: "03XX XXXXXXX"
+        }
+    ];
+
+    state.fees = [
+        {
+            voucher_no: "FV-001",
+            student_name: "Muhammad Ahmad",
+            tuition: 3000,
+            transport: 1500,
+            late_fine: 0,
+            total: 4500,
+            status: "Paid"
+        },
+        {
+            voucher_no: "FV-002",
+            student_name: "Abdul Rahman",
+            tuition: 3000,
+            transport: 1200,
+            late_fine: 300,
+            total: 4500,
+            status: "Pending"
+        }
+    ];
+
+    state.marks = [
+        {
+            student_name: "Muhammad Ahmad",
+            class: "10th",
+            exam_type: "Midterm",
+            theory_marks: 72,
+            practical_marks: 18
+        }
+    ];
+
+    renderStudents();
+    renderTeachers();
+    renderFees();
+    renderMarks();
+    updateDashboard();
+}
+
+
+/* ================================================================
+   STUDENTS
+================================================================ */
+
+function renderStudents() {
+
+    const tbody =
+        document.getElementById("studentsTable");
+
+    if (!tbody) return;
+
+    let students =
+        [...state.students];
+
+    const search =
+        document
+            .getElementById("studentSearch")
+            ?.value
+            .toLowerCase() || "";
+
+    const classFilter =
+        document
+            .getElementById("studentClassFilter")
+            ?.value || "";
+
+    if (search) {
+
+        students =
+            students.filter(student =>
+                String(student.name || "")
+                    .toLowerCase()
+                    .includes(search)
+            );
+    }
+
+    if (classFilter) {
+
+        students =
+            students.filter(student =>
+                String(student.class || "")
+                    .toLowerCase() ===
+                classFilter.toLowerCase()
+            );
+    }
+
+    if (!students.length) {
+
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="7">
+                    <div class="empty">
+                        <i class="fa-solid fa-user-graduate"></i>
+                        <p>No students found.</p>
+                    </div>
+                </td>
+            </tr>
+        `;
+
+        return;
+    }
+
+    tbody.innerHTML =
+        students.map(student => {
+
+            const status =
+                student.bise_status ||
+                student.board_status ||
+                "Pending";
+
+            return `
+                <tr>
+
+                    <td>
+                        <strong>
+                            ${escapeHTML(student.name)}
+                        </strong>
+                    </td>
+
+                    <td>
+                        ${escapeHTML(student.father_name || "-")}
+                    </td>
+
+                    <td>
+                        ${escapeHTML(student.class || "-")}
+                    </td>
+
+                    <td>
+                        ${escapeHTML(student.roll_number || "-")}
+                    </td>
+
+                    <td>
+                        ${escapeHTML(student.route || "-")}
+                    </td>
+
+                    <td>
+                        <span class="badge ${
+                            status.toLowerCase() === "registered"
+                                ? "badge-success"
+                                : "badge-warning"
+                        }">
+                            ${escapeHTML(status)}
+                        </span>
+                    </td>
+
+                    <td>
+
+                        <button
+                            class="btn btn-light"
+                            onclick="viewStudent('${student.id}')"
+                        >
+                            <i class="fa-solid fa-eye"></i>
+                        </button>
+
+                    </td>
+
+                </tr>
+            `;
+
+        }).join("");
+}
+
+
+function openStudentForm() {
+
+    document
+        .getElementById("studentFormCard")
+        .style.display = "block";
+}
+
+
+function closeStudentForm() {
+
+    document
+        .getElementById("studentFormCard")
+        .style.display = "none";
+
+    document
+        .getElementById("studentForm")
+        .reset();
+}
+
+
+async function saveStudent(event) {
+
+    event.preventDefault();
+
+    const student = {
+
+        name:
+            document
+                .getElementById("studentName")
+                .value
+                .trim(),
+
+        father_name:
+            document
+                .getElementById("fatherName")
+                .value
+                .trim(),
+
+        class:
+            document
+                .getElementById("studentClass")
+                .value,
+
+        roll_number:
+            document
+                .getElementById("rollNumber")
+                .value
+                .trim(),
+
+        phone:
+            document
+                .getElementById("studentPhone")
+                .value
+                .trim(),
+
+        route:
+            document
+                .getElementById("studentRoute")
+                .value
+                .trim()
+    };
+
+
+    if (!student.name || !student.class) {
+
+        showToast(
+            "Student name and class are required."
+        );
+
+        return;
+    }
+
+
+    if (!supabaseClient) {
+
+        student.id =
+            Date.now();
+
+        state.students.unshift(
+            student
+        );
+
+        renderStudents();
+        updateDashboard();
+
+        closeStudentForm();
+
+        showToast(
+            "Student added in demo mode."
+        );
+
+        return;
+    }
+
+
+    try {
+
+        const {
+            data,
+            error
+        } = await supabaseClient
+            .from("students")
+            .insert(student)
+            .select()
+            .single();
+
+        if (error) {
+            throw error;
+        }
+
+        state.students.unshift(data);
+
+        renderStudents();
+        updateDashboard();
+
+        closeStudentForm();
+
+        showToast(
+            "Student registered successfully."
+        );
+
+    } catch (error) {
+
+        console.error(error);
+
+        showToast(
+            error.message ||
+            "Unable to save student."
+        );
+    }
+}
+
+
+function viewStudent(id) {
+
+    const student =
+        state.students.find(
+            item => String(item.id) === String(id)
+        );
+
+    if (!student) return;
+
+    alert(
+`Student Details
+
+Name: ${student.name || "-"}
+Father: ${student.father_name || "-"}
+Class: ${student.class || "-"}
+Roll No: ${student.roll_number || "-"}
+Route: ${student.route || "-"}
+BISE: ${student.bise_status || "Pending"}`
+    );
+}
+
+
+/* ================================================================
+   TEACHERS
+================================================================ */
+
+function renderTeachers() {
+
+    const tbody =
+        document.getElementById("teachersTable");
+
+    if (!tbody) return;
+
+    if (!state.teachers.length) {
+
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="5">
+                    <div class="empty">
+                        <i class="fa-solid fa-chalkboard-user"></i>
+                        <p>No teacher records loaded.</p>
+                    </div>
+                </td>
+            </tr>
+        `;
+
+        return;
+    }
+
+    tbody.innerHTML =
+        state.teachers.map(teacher => {
+
+            return `
+                <tr>
+
+                    <td>
+                        <strong>
+                            ${escapeHTML(
+                                teacher.full_name ||
+                                teacher.name ||
+                                "-"
+                            )}
+                        </strong>
+                    </td>
+
+                    <td>
+                        ${escapeHTML(
+                            teacher.subject ||
+                            "-"
+                        )}
+                    </td>
+
+                    <td>
+                        ${escapeHTML(
+                            teacher.phone ||
+                            "-"
+                        )}
+                    </td>
+
+                    <td>
+                        <span class="badge badge-success">
+                            Active
+                        </span>
+                    </td>
+
+                    <td>
+                        <span class="badge badge-success">
+                            Active
+                        </span>
+                    </td>
+
+                </tr>
+            `;
+
+        }).join("");
+}
+
+
+/* ================================================================
+   FEES
+================================================================ */
+
+function renderFees() {
+
+    const tbody =
+        document.getElementById("feesTable");
+
+    if (!tbody) return;
+
+    if (!state.fees.length) {
+
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="7">
+                    <div class="empty">
+                        <i class="fa-solid fa-receipt"></i>
+                        <p>No fee records available.</p>
+                    </div>
+                </td>
+            </tr>
+        `;
+
+        return;
+    }
+
+    tbody.innerHTML =
+        state.fees.map(fee => {
+
+            const total =
+                Number(
+                    fee.total ||
+                    (
+                        Number(fee.tuition || 0) +
+                        Number(fee.transport || 0) +
+                        Number(fee.late_fine || 0)
+                    )
+                );
+
+            const paid =
+                String(fee.status || "")
+                    .toLowerCase() === "paid";
+
+            return `
+                <tr>
+
+                    <td>
+                        ${escapeHTML(
+                            fee.voucher_no ||
+                            fee.voucher_number ||
+                            "-"
+                        )}
+                    </td>
+
+                    <td>
+                        ${escapeHTML(
+                            fee.student_name ||
+                            "-"
+                        )}
+                    </td>
+
+                    <td>
+                        PKR ${formatPKR(
+                            fee.tuition
+                        )}
+                    </td>
+
+                    <td>
+                        PKR ${formatPKR(
+                            fee.transport
+                        )}
+                    </td>
+
+                    <td>
+                        PKR ${formatPKR(
+                            fee.late_fine
+                        )}
+                    </td>
+
+                    <td>
+                        <strong>
+                            PKR ${formatPKR(total)}
+                        </strong>
+                    </td>
+
+                    <td>
+                        <span class="badge ${
+                            paid
+                                ? "badge-success"
+                                : "badge-warning"
+                        }">
+                            ${paid ? "Paid" : "Pending"}
+                        </span>
+                    </td>
+
+                </tr>
+            `;
+
+        }).join("");
+
+
+    const collected =
+        state.fees
+            .filter(
+                fee =>
+                    String(fee.status)
+                        .toLowerCase() === "paid"
+            )
+            .reduce(
+                (sum, fee) =>
+                    sum +
+                    Number(
+                        fee.total ||
+                        Number(fee.tuition || 0) +
+                        Number(fee.transport || 0) +
+                        Number(fee.late_fine || 0)
+                    ),
+                0
+            );
+
+
+    const pending =
+        state.fees
+            .filter(
+                fee =>
+                    String(fee.status)
+                        .toLowerCase() !== "paid"
+            )
+            .reduce(
+                (sum, fee) =>
+                    sum +
+                    Number(
+                        fee.total ||
+                        Number(fee.tuition || 0) +
+                        Number(fee.transport || 0) +
+                        Number(fee.late_fine || 0)
+                    ),
+                0
+            );
+
+
+    document
+        .getElementById("feeCollected")
+        .textContent =
+        "PKR " + formatPKR(collected);
+
+    document
+        .getElementById("feePending")
+        .textContent =
+        "PKR " + formatPKR(pending);
+}
+
+
+/* ================================================================
+   MARKS
+================================================================ */
+
+function renderMarks() {
+
+    const tbody =
+        document.getElementById("marksTable");
+
+    if (!tbody) return;
+
+    if (!state.marks.length) {
+
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="7">
+                    <div class="empty">
+                        <i class="fa-solid fa-file-pen"></i>
+                        <p>No marks records available.</p>
+                    </div>
+                </td>
+            </tr>
+        `;
+
+        return;
+    }
+
+    tbody.innerHTML =
+        state.marks.map(mark => {
+
+            const theory =
+                Number(
+                    mark.theory_marks ||
+                    mark.theory ||
+                    0
+                );
+
+            const practical =
+                Number(
+                    mark.practical_marks ||
+                    mark.practical ||
+                    0
+                );
+
+            const total =
+                theory + practical;
+
+            return `
+                <tr>
+
+                    <td>
+                        ${
+                            escapeHTML(
+                                mark.student_name ||
+                                mark.students?.name ||
+                                "-"
+                            )
+                        }
+                    </td>
+
+                    <td>
+                        ${
+                            escapeHTML(
+                                mark.class ||
+                                mark.students?.class ||
+                                "-"
+                            )
+                        }
+                    </td>
+
+                    <td>
+                        ${
+                            escapeHTML(
+                                mark.exam_type ||
+                                mark.exam ||
+                                "-"
+                            )
+                        }
+                    </td>
+
+                    <td>
+                        ${theory}
+                    </td>
+
+                    <td>
+                        ${practical}
+                    </td>
+
+                    <td>
+                        <strong>
+                            ${total}
+                        </strong>
+                    </td>
+
+                    <td>
+                        <span class="badge badge-info">
+                            ${calculateGrade(total)}
+                        </span>
+                    </td>
+
+                </tr>
+            `;
+
+        }).join("");
+}
+
+
+function calculateGrade(percent) {
+
+    if (percent >= 80) return "A1";
+    if (percent >= 70) return "A";
+    if (percent >= 60) return "B";
+    if (percent >= 50) return "C";
+    if (percent >= 40) return "D";
+
+    return "F";
+}
+
+
+/* ================================================================
+   ATTENDANCE
+================================================================ */
+
+function renderAttendanceList() {
+
+    const container =
+        document.getElementById("attendanceList");
+
+    if (!container) return;
+
+    const selectedClass =
+        document
+            .getElementById("attendanceClass")
+            .value;
+
+    const students =
+        state.students.filter(
+            student =>
+                student.class === selectedClass
+        );
+
+    if (!students.length) {
+
+        container.innerHTML = `
+            <div class="empty">
+                <i class="fa-solid fa-users"></i>
+                <p>No students in ${selectedClass}.</p>
+            </div>
+        `;
+
+        return;
+    }
+
+    container.innerHTML =
+        students.map(student => {
+
+            return `
+                <div
+                    class="attendance-row"
+                    data-student-id="${student.id}"
+                    style="
+                    display:flex;
+                    align-items:center;
+                    justify-content:space-between;
+                    padding:13px 0;
+                    border-bottom:1px solid #eee;
+                    "
+                >
+
+                    <div>
+
+                        <strong style="font-size:12px;">
+                            ${escapeHTML(student.name)}
+                        </strong>
+
+                        <span
+                            style="
+                            display:block;
+                            font-size:10px;
+                            color:#777;
+                            "
+                        >
+                            Roll No:
+                            ${escapeHTML(
+                                student.roll_number || "-"
+                            )}
+                        </span>
+
+                    </div>
+
+                    <select
+                        class="attendance-status"
+                        style="
+                        border:1px solid #ddd;
+                        padding:7px;
+                        border-radius:7px;
+                        "
+                    >
+
+                        <option value="present">
+                            Present
+                        </option>
+
+                        <option value="absent">
+                            Absent
+                        </option>
+
+                        <option value="leave">
+                            Leave
+                        </option>
+
+                    </select>
+
+                </div>
+            `;
+
+        }).join("");
+}
+
+
+async function saveAttendance() {
+
+    const rows =
+        document.querySelectorAll(
+            ".attendance-row"
+        );
+
+    if (!rows.length) {
+
+        showToast(
+            "No attendance records to save."
+        );
+
+        return;
+    }
+
+    const date =
+        document
+            .getElementById("attendanceDate")
+            .value;
+
+    const records =
+        [...rows].map(row => {
+
+            return {
+                student_id:
+                    row.dataset.studentId,
+
+                attendance_date:
+                    date ||
+                    new Date()
+                        .toISOString()
+                        .split("T")[0],
+
+                status:
+                    row.querySelector(
+                        ".attendance-status"
+                    ).value
+            };
+
+        });
+
+
+    if (!supabaseClient) {
+
+        showToast(
+            "Attendance saved in demo mode."
+        );
+
+        return;
+    }
+
+
+    try {
+
+        const {
+            error
+        } = await supabaseClient
+            .from("attendance")
+            .upsert(
+                records,
+                {
+                    onConflict:
+                        "student_id,attendance_date"
+                }
+            );
+
+        if (error) {
+            throw error;
+        }
+
+        showToast(
+            "Attendance saved successfully."
+        );
+
+    } catch (error) {
+
+        console.error(error);
+
+        showToast(
+            error.message ||
+            "Unable to save attendance."
+        );
+    }
+}
+
+
+/* ================================================================
+   DASHBOARD
+================================================================ */
+
+function updateDashboard() {
+
+    const students =
+        state.students || [];
+
+    const teachers =
+        state.teachers || [];
+
+    document
+        .getElementById("totalStudents")
+        .textContent =
+        students.length;
+
+    document
+        .getElementById("totalTeachers")
+        .textContent =
+        teachers.length;
+
+
+    const class9 =
+        students.filter(
+            student =>
+                String(student.class)
+                    .toLowerCase() === "9th"
+        ).length;
+
+    const class10 =
+        students.filter(
+            student =>
+                String(student.class)
+                    .toLowerCase() === "10th"
+        ).length;
+
+
+    [
+        "class9Count",
+        "classes9",
+        "classTable9"
+    ].forEach(id => {
+
+        const element =
+            document.getElementById(id);
+
+        if (element) {
+            element.textContent =
+                class9;
+        }
+
+    });
+
+
+    [
+        "class10Count",
+        "classes10",
+        "classTable10"
+    ].forEach(id => {
+
+        const element =
+            document.getElementById(id);
+
+        if (element) {
+            element.textContent =
+                class10;
+        }
+
+    });
+
+
+    const feeTotal =
+        state.fees.reduce(
+            (sum, fee) =>
+                sum +
+                Number(
+                    fee.total ||
+                    Number(fee.tuition || 0) +
+                    Number(fee.transport || 0) +
+                    Number(fee.late_fine || 0)
+                ),
+            0
+        );
+
+
+    document
+        .getElementById("monthlyFees")
+        .textContent =
+        "PKR " + formatPKR(feeTotal);
+
+
+    renderRecentStudents();
+
+    renderCharts();
+}
+
+
+function renderRecentStudents() {
+
+    const tbody =
+        document.getElementById(
+            "recentStudents"
+        );
+
+    if (!tbody) return;
+
+    const students =
+        state.students.slice(0, 5);
+
+    if (!students.length) {
+
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="4">
+                    <div class="empty">
+                        No students available.
+                    </div>
+                </td>
+            </tr>
+        `;
+
+        return;
+    }
+
+    tbody.innerHTML =
+        students.map(student => {
+
+            return `
+                <tr>
+
+                    <td>
+                        ${escapeHTML(
+                            student.name
+                        )}
+                    </td>
+
+                    <td>
+                        ${escapeHTML(
+                            student.class || "-"
+                        )}
+                    </td>
+
+                    <td>
+                        ${escapeHTML(
+                            student.roll_number || "-"
+                        )}
+                    </td>
+
+                    <td>
+                        <span class="badge badge-success">
+                            Active
+                        </span>
+                    </td>
+
+                </tr>
+            `;
+
+        }).join("");
+}
+
+
+/* ================================================================
+   CHARTS
+================================================================ */
+
+let admissionChart = null;
+let feeChart = null;
+
+
+function renderCharts() {
+
+    const admissionCanvas =
+        document.getElementById(
+            "admissionChart"
+        );
+
+    const feeCanvas =
+        document.getElementById(
+            "feeChart"
+        );
+
+    if (!admissionCanvas ||
+        !feeCanvas ||
+        typeof Chart === "undefined") {
+
+        return;
+    }
+
+
+    if (admissionChart) {
+        admissionChart.destroy();
+    }
+
+    if (feeChart) {
+        feeChart.destroy();
+    }
+
+
+    admissionChart =
+        new Chart(
+            admissionCanvas,
+            {
+                type: "line",
+
+                data: {
+                    labels: [
+                        "Apr",
+                        "May",
+                        "Jun",
+                        "Jul",
+                        "Aug",
+                        "Sep"
+                    ],
+
+                    datasets: [
+                        {
+                            label: "Admissions",
+
+                            data: [
+                                Math.round(
+                                    state.students.length * .4
+                                ),
+                                Math.round(
+                                    state.students.length * .55
+                                ),
+                                Math.round(
+                                    state.students.length * .65
+                                ),
+                                Math.round(
+                                    state.students.length * .75
+                                ),
+                                Math.round(
+                                    state.students.length * .9
+                                ),
+                                state.students.length
+                            ],
+
+                            tension: .4,
+
+                            borderWidth: 3,
+
+                            fill: false
+                        }
+                    ]
+                },
+
+                options: {
+                    responsive: true,
+
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            }
+        );
+
+
+    const paid =
+        state.fees
+            .filter(
+                fee =>
+                    String(fee.status)
+                        .toLowerCase() === "paid"
+            )
+            .reduce(
+                (sum, fee) =>
+                    sum +
+                    Number(fee.total || 0),
+                0
+            );
+
+
+    const pending =
+        state.fees
+            .filter(
+                fee =>
+                    String(fee.status)
+                        .toLowerCase() !== "paid"
+            )
+            .reduce(
+                (sum, fee) =>
+                    sum +
+                    Number(fee.total || 0),
+                0
+            );
+
+
+    feeChart =
+        new Chart(
+            feeCanvas,
+            {
+                type: "doughnut",
+
+                data: {
+
+                    labels: [
+                        "Paid",
+                        "Pending"
+                    ],
+
+                    datasets: [
+                        {
+                            data: [
+                                paid,
+                                pending
+                            ]
+                        }
+                    ]
+
+                },
+
+                options: {
+                    responsive: true,
+
+                    plugins: {
+                        legend: {
+                            position: "bottom"
+                        }
+                    }
+                }
+            }
+        );
+}
+
+
+/* ================================================================
+   CERTIFICATES
+================================================================ */
+
+function openCertificate(type) {
+
+    const studentName =
+        prompt(
+            `Enter student name for ${type} Certificate:`
+        );
+
+    if (!studentName) {
+        return;
+    }
+
+    const certificate =
+        window.open(
+            "",
+            "_blank",
+            "width=900,height=700"
+        );
+
+    certificate.document.write(`
+
+        <!DOCTYPE html>
+
+        <html>
+
+        <head>
+
+            <title>${type} Certificate</title>
+
+            <style>
+
+                body {
+                    font-family: Georgia, serif;
+                    padding: 70px;
+                    text-align: center;
+                }
+
+                .certificate {
+                    border: 8px double #0f5298;
+                    padding: 70px 50px;
+                    min-height: 500px;
+                }
+
+                h1 {
+                    color:#0f5298;
+                    font-size:36px;
+                }
+
+                h2 {
+                    font-size:26px;
+                    margin:40px 0;
+                }
+
+                p {
+                    font-size:17px;
+                    line-height:2;
+                }
+
+                .signatures {
+                    display:flex;
+                    justify-content:space-between;
+                    margin-top:100px;
+                }
+
+            </style>
+
+        </head>
+
+        <body>
+
+            <div class="certificate">
+
+                <h1>
+                    KPK SCHOOL MANAGEMENT SYSTEM
+                </h1>
+
+                <h2>
+                    ${type} Certificate
+                </h2>
+
+                <p>
+                    This is to certify that
+                    <strong>
+                        ${escapeHTML(studentName)}
+                    </strong>
+                    is/was a student of this institution.
+                </p>
+
+                <p>
+                    This certificate has been generated
+                    through the School Management System.
+                </p>
+
+                <div class="signatures">
+
+                    <span>
+                        __________________
+                        <br>
+                        Class Teacher
+                    </span>
+
+                    <span>
+                        __________________
+                        <br>
+                        Principal
+                    </span>
+
+                </div>
+
+            </div>
+
+            <script>
+                window.print();
+            <\/script>
+
+        </body>
+
+        </html>
+    `);
+
+    certificate.document.close();
+}
+
+
+function printBoardSlip() {
+
+    const studentName =
+        prompt(
+            "Enter student name:"
+        );
+
+    if (!studentName) return;
+
+    const win =
+        window.open(
+            "",
+            "_blank"
+        );
+
+    win.document.write(`
+
+        <html>
+
+        <head>
+
+            <title>BISE Roll Number Slip</title>
+
+            <style>
+
+                body {
+                    font-family: Arial;
+                    padding:40px;
+                }
+
+                .slip {
+                    border:2px solid #222;
+                    padding:30px;
+                    max-width:700px;
+                    margin:auto;
+                }
+
+                h1,h2 {
+                    text-align:center;
+                }
+
+                table {
+                    width:100%;
+                    border-collapse:collapse;
+                    margin-top:30px;
+                }
+
+                td {
+                    border:1px solid #ccc;
+                    padding:12px;
+                }
+
+            </style>
+
+        </head>
+
+        <body>
+
+            <div class="slip">
+
+                <h1>
+                    BISE PESHAWAR
+                </h1>
+
+                <h2>
+                    BOARD EXAMINATION ROLL NUMBER SLIP
+                </h2>
+
+                <table>
+
+                    <tr>
+                        <td>Student</td>
+                        <td>${escapeHTML(studentName)}</td>
+                    </tr>
+
+                    <tr>
+                        <td>Class</td>
+                        <td>10th</td>
+                    </tr>
+
+                    <tr>
+                        <td>Board</td>
+                        <td>BISE Peshawar</td>
+                    </tr>
+
+                    <tr>
+                        <td>Session</td>
+                        <td>2026-27</td>
+                    </tr>
+
+                    <tr>
+                        <td>Roll Number</td>
+                        <td>________________</td>
+                    </tr>
+
+                </table>
+
+            </div>
+
+            <script>
+                window.print();
+            <\/script>
+
+        </body>
+
+        </html>
+
+    `);
+
+    win.document.close();
+}
+
+
+/* ================================================================
+   REPORTS
+================================================================ */
+
+function printReport(type) {
+
+    const win =
+        window.open(
+            "",
+            "_blank"
+        );
+
+    win.document.write(`
+
+        <html>
+
+        <head>
+
+            <title>SCMS Report</title>
+
+            <style>
+
+                body {
+                    font-family: Arial;
+                    padding:30px;
+                }
+
+                h1 {
+                    color:#0f5298;
+                }
+
+                table {
+                    width:100%;
+                    border-collapse:collapse;
+                    margin-top:20px;
+                }
+
+                th,td {
+                    border:1px solid #ddd;
+                    padding:9px;
+                }
+
+            </style>
+
+        </head>
+
+        <body>
+
+            <h1>
+                SCMS School Report
+            </h1>
+
+            <p>
+                Report Type:
+                ${escapeHTML(type)}
+            </p>
+
+            <p>
+                Generated:
+                ${new Date().toLocaleString()}
+            </p>
+
+            <table>
+
+                <tr>
+                    <th>Metric</th>
+                    <th>Value</th>
+                </tr>
+
+                <tr>
+                    <td>Total Students</td>
+                    <td>${state.students.length}</td>
+                </tr>
+
+                <tr>
+                    <td>Total Teachers</td>
+                    <td>${state.teachers.length}</td>
+                </tr>
+
+                <tr>
+                    <td>Total Fee Records</td>
+                    <td>${state.fees.length}</td>
+                </tr>
+
+            </table>
+
+            <script>
+                window.print();
+            <\/script>
+
+        </body>
+
+        </html>
+
+    `);
+
+    win.document.close();
+}
+
+
+/* ================================================================
+   LANGUAGE
+================================================================ */
+
+function toggleLanguage() {
+
+    state.language =
+        state.language === "en"
+            ? "ur"
+            : state.language === "ur"
+                ? "ps"
+                : "en";
+
+    const names = {
+        en: "English",
+        ur: "اردو",
+        ps: "پښتو"
+    };
+
+    showToast(
+        "Language: " +
+        names[state.language]
+    );
+}
+
+
+/* ================================================================
+   EVENTS
+================================================================ */
+
+document.addEventListener(
+    "DOMContentLoaded",
+    () => {
+
+        /*
+        ------------------------------------------------------------
+        Navigation
+        ------------------------------------------------------------
+        */
+
+        document
+            .querySelectorAll(
+                ".menu-item[data-view]"
+            )
+            .forEach(item => {
+
+                item.addEventListener(
+                    "click",
+                    () => {
+                        openView(
+                            item.dataset.view
+                        );
+                    }
+                );
+
+            });
+
+
+        /*
+        ------------------------------------------------------------
+        Login
+        ------------------------------------------------------------
+        */
+
+        document
+            .getElementById("loginForm")
+            .addEventListener(
+                "submit",
+                event => {
+
+                    event.preventDefault();
+
+                    login(
+                        document
+                            .getElementById("email")
+                            .value
+                            .trim(),
+
+                        document
+                            .getElementById("password")
+                            .value
+                    );
+
+                }
+            );
+
+
+        /*
+        ------------------------------------------------------------
+        Logout
+        ------------------------------------------------------------
+        */
+
+        document
+            .getElementById("logoutBtn")
+            .addEventListener(
+                "click",
+                logout
+            );
+
+
+        /*
+        ------------------------------------------------------------
+        Student Form
+        ------------------------------------------------------------
+        */
+
+        document
+            .getElementById("studentForm")
+            .addEventListener(
+                "submit",
+                saveStudent
+            );
+
+
+        /*
+        ------------------------------------------------------------
+        Student Search
+        ------------------------------------------------------------
+        */
+
+        document
+            .getElementById("studentSearch")
+            .addEventListener(
+                "input",
+                renderStudents
+            );
+
+
+        document
+            .getElementById("studentClassFilter")
+            .addEventListener(
+                "change",
+                renderStudents
+            );
+
+
+        /*
+        ------------------------------------------------------------
+        Attendance
+        ------------------------------------------------------------
+        */
+
+        document
+            .getElementById("attendanceClass")
+            .addEventListener(
+                "change",
+                renderAttendanceList
+            );
+
+
+        /*
+        ------------------------------------------------------------
+        Mobile Menu
+        ------------------------------------------------------------
+        */
+
+        document
+            .getElementById("mobileMenu")
+            .addEventListener(
+                "click",
+                () => {
+
+                    document
+                        .getElementById("sidebar")
+                        .classList.toggle("open");
+
+                }
+            );
+
+
+        /*
+        ------------------------------------------------------------
+        Settings
+        ------------------------------------------------------------
+        */
+
+        document
+            .getElementById("supabaseUrlInput")
+            .value =
+            localStorage.getItem(
+                "scms_supabase_url"
+            ) || "";
+
+        document
+            .getElementById("supabaseKeyInput")
+            .value =
+            localStorage.getItem(
+                "scms_supabase_key"
+            ) || "";
+
+
+        /*
+        ------------------------------------------------------------
+        Initialize Supabase
+        ------------------------------------------------------------
+        */
+
+        initializeSupabase();
+
+
+        /*
+        ------------------------------------------------------------
+        Existing Session
+        ------------------------------------------------------------
+        */
+
+        if (supabaseClient) {
+
+            supabaseClient.auth
+                .getSession()
+                .then(
+                    async ({
+                        data
+                    }) => {
+
+                        if (
+                            data &&
+                            data.session
+                        ) {
+
+                            state.user =
+                                data.session.user;
+
+                            await loadProfile();
+
+                            showApplication();
+                        }
+
+                    }
+                );
+
+
+            supabaseClient.auth
+                .onAuthStateChange(
+                    async (
+                        event,
+                        session
+                    ) => {
+
+                        if (
+                            session &&
+                            !state.user
+                        ) {
+
+                            state.user =
+                                session.user;
+
+                            await loadProfile();
+
+                            showApplication();
+                        }
+
+                        if (
+                            !session &&
+                            event === "SIGNED_OUT"
+                        ) {
+
+                            state.user = null;
+
+                        }
+
+                    }
+                );
+
+        }
+
+
+        /*
+        ------------------------------------------------------------
+        Defaults
+        ------------------------------------------------------------
+        */
+
+        const date =
+            document
+                .getElementById("attendanceDate");
+
+        if (date) {
+
+            date.value =
+                new Date()
+                    .toISOString()
+                    .split("T")[0];
+
+        }
+
+    }
+);
+
+</script>
+
+</body>
+</html>
