@@ -1,0 +1,18 @@
+{
+  "name": "kpk-school-management-system",
+  "version": "1.0.0",
+  "description": "Pakistani KPK School Management System for Charsadda schools with Supabase backend.",
+  "private": true,
+  "type": "commonjs",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.57.4",
+    "express": "^5.1.0"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
